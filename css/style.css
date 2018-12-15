@@ -190,7 +190,7 @@ body {
 }
 
 #about-us {
-  background-color: #1abc9c;
+  background-color: seagreen;
   color: #e4e6e5;
   padding-top: 90px;
 }
@@ -623,4 +623,17 @@ i {
 }
 .credits {
   color: #999;
+}
+
+.weather-report{
+  display: inline-block;
+}
+
+#weathermap {
+  background-color: steelblue;
+  margin: 10 auto;
+  overflow: hidden;
+  padding: 10;
+  width: 100%;
+  font-size: 20px;
 }
