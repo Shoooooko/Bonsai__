@@ -331,6 +331,12 @@ i {
   padding-top: 90px;
 }
 #schedule {
+  background-color:blue;
+  color:white;
+  padding-top: 90px;
+}
+
+#member{
   background-color: #f21167;
   color: #e4e6e5;
   padding-top: 90px;
