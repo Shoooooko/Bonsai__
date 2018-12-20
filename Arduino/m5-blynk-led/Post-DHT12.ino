@@ -2,8 +2,6 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
-#include "DHT12.h"
-#include <Wire.h> //The DHT12 uses I2C comunication.
 #include <Avatar.h>
 #include <faces/DogFace.h>
 
@@ -44,7 +42,8 @@ int nRainIn = 36;
 int nRainDigitalIn = 26;
 
 //check from rain detector
-boolean bIsRaining = false;
+boolean IsRaining = false;
+boolean oldIsRaining = false;
 //check from blynk
 boolean blynkRaining = false;
 
@@ -119,30 +118,27 @@ void loop() {
 
   Blynk.run();
 
+  oldIsRaining = IsRaining;
+
   //when to close or open bonsai
   //rainy(bIsRaining == true) : close
   //sunny(bIsRaining == false) : open
+  // if(blynkRaining){
   if(blynkRaining || digitalRead(nRainDigitalIn) == LOW){
-    bIsRaining = true;
+    IsRaining = true;
   } else {
-    bIsRaining = false;
+    IsRaining = false;
   }
 
-  if(bIsRaining){
-    digitalWrite(greenPin, HIGH);
-    digitalWrite(redPin, LOW);
+  if(IsRaining != oldIsRaining){
 
-    //set blue color and doubt expression
-    avatar.setColorPalette(*cps[0]);
-    avatar.setExpression(expressions[0]);
+    bonsaiStop();
+
+    bonsaiDecision(IsRaining);
   } else {
-    digitalWrite(greenPin, LOW);
-    digitalWrite(redPin, HIGH);
-
-    //set white color and doubt expression
-    avatar.setColorPalette(*cps[1]);
-    avatar.setExpression(expressions[1]);
+    bonsaiDecision(IsRaining);
   }
+
   Serial.print(nRainIn);
 
   //select human or dog
@@ -154,12 +150,41 @@ void loop() {
 
 
   //display in blynk to know the state of bonsai
-  if(bIsRaining){
+  if(IsRaining){
     lcd.print(2, 1, "Closed");
   } else {
     lcd.print(2, 1, "Opened");
   }
+}
 
+void bonsaiRainy(){
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, HIGH);
   delay(500);
+}
 
+void bonsaiSunny(){
+  digitalWrite(redPin, HIGH);
+  digitalWrite(greenPin, LOW);
+  delay(500);
+}
+
+void bonsaiStop(){
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, LOW);
+  delay(500);
+}
+
+void bonsaiDecision(boolean IsRaining){
+  if(IsRaining){
+    bonsaiRainy();
+    //set blue color and doubt expression
+    avatar.setColorPalette(*cps[0]);
+    avatar.setExpression(expressions[0]);
+  } else {
+    bonsaiSunny();
+    //set white color and doubt expression
+    avatar.setColorPalette(*cps[1]);
+    avatar.setExpression(expressions[1]);
+  }
 }
